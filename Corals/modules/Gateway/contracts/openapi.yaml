@@ -1,0 +1,5 @@
+# STUB — authored in M0 from docs/adapter-contract.md.
+# Issuer API (payment-intents, status) + POS API (cash validate/confirm/batch-confirm) + issuer webhooks.
+openapi: 3.1.0
+info: { title: Gateway API, version: 0.1.0 }
+paths: {}

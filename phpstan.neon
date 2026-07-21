@@ -1,0 +1,11 @@
+includes:
+    - vendor/larastan/larastan/extension.neon
+
+parameters:
+    level: 6
+    paths:
+        - Corals/modules/Gateway
+    # Money is integer centavos; flag any float creeping into the domain.
+    # Raise to level 8 on Core/ and Contracts/ once the module stabilizes.
+    excludePaths:
+        - Corals/modules/Gateway/docs

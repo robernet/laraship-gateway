@@ -1,0 +1,5 @@
+# STUB — the adapter<->core seam contract the future NestJS service must speak.
+# Messages: ValidateCollection, ConfirmCollection, IngestSettlementBatch (+ results/callbacks).
+asyncapi: 3.0.0
+info: { title: Gateway Adapter Contract, version: 0.1.0 }
+channels: {}

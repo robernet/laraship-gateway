@@ -1,0 +1,42 @@
+# Deptrac — enforces the strangler seam. Run: vendor/bin/deptrac analyse
+# The ruleset lists ALLOWED internal dependencies; anything not listed FAILS the build.
+deptrac:
+  paths:
+    - ./Corals/modules/Gateway
+  layers:
+    - name: Adapters
+      collectors:
+        - type: classLike
+          value: 'Corals\\Modules\\Gateway\\Adapters\\.*'
+    - name: Contracts
+      collectors:
+        - type: classLike
+          value: 'Corals\\Modules\\Gateway\\Contracts\\.*'
+    - name: Core
+      collectors:
+        - type: classLike
+          value: 'Corals\\Modules\\Gateway\\Core\\.*'
+    - name: Http
+      collectors:
+        - type: classLike
+          value: 'Corals\\Modules\\Gateway\\Http\\.*'
+    - name: Models
+      collectors:
+        - type: classLike
+          value: 'Corals\\Modules\\Gateway\\Models\\.*'
+  ruleset:
+    # THE SEAM: adapters may see ONLY the contract. Not Core, not Models, not Http.
+    Adapters:
+      - Contracts
+    # Presentation orchestrates the application + reads models via Core.
+    Http:
+      - Core
+      - Contracts
+      - Models
+    # Application owns transactions; depends inward on ports + persistence.
+    Core:
+      - Contracts
+      - Models
+    # Ports and persistence depend on nothing internal.
+    Contracts: ~
+    Models: ~

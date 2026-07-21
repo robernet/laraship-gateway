@@ -1,0 +1,38 @@
+# Phase 0 dev backing services. App runs natively (php artisan serve) or in your own container.
+# Money system-of-record = Postgres; Redis = replay/idempotency/velocity/queue; MinIO = batch files + reports.
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: gateway
+      POSTGRES_USER: gateway
+      POSTGRES_PASSWORD: secret
+    ports: ["5432:5432"]
+    volumes: ["pgdata:/var/lib/postgresql/data"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U gateway"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  redis:
+    image: redis:7
+    ports: ["6379:6379"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  minio:
+    image: minio/minio
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: gateway
+      MINIO_ROOT_PASSWORD: secretsecret
+    ports: ["9000:9000", "9001:9001"]
+    volumes: ["miniodata:/data"]
+
+volumes:
+  pgdata:
+  miniodata:
