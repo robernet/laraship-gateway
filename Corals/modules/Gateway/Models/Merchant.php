@@ -2,10 +2,33 @@
 
 namespace Corals\Modules\Gateway\Models;
 
-/**
- * STUB — generated in M0–M4. Eloquent model (persistence).
- * See Corals/modules/Gateway/CLAUDE.md for invariants.
- */
-class Merchant
+use Corals\Modules\Gateway\database\factories\MerchantFactory;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+
+class Merchant extends Model
 {
+    use HasFactory;
+
+    protected $fillable = [
+        'mid',
+        'issuer_id',
+        'signing_key_current_kid',
+        'status',
+    ];
+
+    protected static function newFactory(): MerchantFactory
+    {
+        return MerchantFactory::new();
+    }
+
+    public function issuer()
+    {
+        return $this->belongsTo(Issuer::class);
+    }
+
+    public function merchantKeys()
+    {
+        return $this->hasMany(MerchantKey::class);
+    }
 }
