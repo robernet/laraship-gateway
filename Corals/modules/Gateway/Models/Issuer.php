@@ -4,12 +4,20 @@ namespace Corals\Modules\Gateway\Models;
 
 use Corals\Modules\Gateway\database\factories\IssuerFactory;
 use Hashids\Hashids;
+use Illuminate\Auth\Authenticatable;
+use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Laravel\Sanctum\HasApiTokens;
 
-class Issuer extends Model
+/**
+ * Issuer doubles as the Sanctum-authenticatable principal for the Issuer API
+ * (GW-301). Full scoped abilities + rate limiting land in GW-305; this is
+ * just enough auth to identify which issuer is calling.
+ */
+class Issuer extends Model implements AuthenticatableContract
 {
-    use HasFactory;
+    use Authenticatable, HasApiTokens, HasFactory;
 
     protected $fillable = [
         'public_id',

@@ -47,6 +47,8 @@ paths:
           $ref: '#/components/responses/ValidationError'
         '401':
           $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
 
   /payment-intents/{id}:
     get:
@@ -286,6 +288,12 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/ErrorResponse'
+    Forbidden:
+      description: Authenticated but not authorized for the requested resource
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
     RateLimited:
       description: Rate limit exceeded (validate is enumeration surface — always throttled)
       content:
@@ -335,10 +343,14 @@ components:
 
     PaymentIntentCreateRequest:
       type: object
-      required: [invoice_id, mode, amount_policy]
+      required: [invoice_id, mid, mode, amount_policy]
       properties:
         invoice_id:
           type: string
+        mid:
+          type: string
+          pattern: '^[0-9]{9}$'
+          description: Routes the intent to a merchant owned by the authenticated issuer (403 if not).
         mode:
           type: string
           enum: [one_time, reusable]
