@@ -5,6 +5,7 @@ namespace Corals\Modules\Gateway\tests;
 use Corals\Modules\Gateway\database\migrations\AuditLogTables;
 use Corals\Modules\Gateway\database\migrations\IssuersMerchantsTables;
 use Corals\Modules\Gateway\database\migrations\LedgerEntriesTables;
+use Corals\Modules\Gateway\database\migrations\PaymentIntentsTables;
 use Corals\Modules\Gateway\database\migrations\PosWalletsTables;
 use Corals\Modules\Gateway\database\migrations\ReconciliationExceptionsTables;
 use Illuminate\Support\Facades\DB;
@@ -43,6 +44,10 @@ abstract class GatewayTestCase extends TestCase
 
         if (! Schema::hasTable('reconciliation_exceptions')) {
             (new ReconciliationExceptionsTables())->up();
+        }
+
+        if (! Schema::hasTable('payment_intents')) {
+            (new PaymentIntentsTables())->up();
         }
 
         DB::beginTransaction();
