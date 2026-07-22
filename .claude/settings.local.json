@@ -1,4 +1,11 @@
 {
+  "permissions": {
+    "allow": [
+      "Bash(php -l Corals/modules/Gateway/module.json)",
+      "Bash(php -r 'json_decode\\(file_get_contents\\(\"Corals/modules/Gateway/module.json\"\\), true, 512, JSON_THROW_ON_ERROR\\); echo \"module.json: valid JSON\\\\n\";')",
+      "Bash(php artisan *)"
+    ]
+  },
   "enabledMcpjsonServers": [
     "laravel-boost"
   ]

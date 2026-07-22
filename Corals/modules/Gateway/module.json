@@ -1,20 +1,20 @@
 {
-  "alias": "gateway",
+  "code": "corals-gateway",
   "name": "Gateway",
+  "author": "Corals",
+  "type": "module",
   "description": "Cash-collection payment gateway (prepaid POS wallets, signed instruments, double-entry ledger, network adapter layer).",
-  "keywords": ["payments", "cash", "gateway", "ledger", "mexico"],
-  "version": "0.1.0",
-  "base_path": "Gateway",
   "namespace": "Corals\\Modules\\Gateway",
-  "providers": [
-    "Corals\\Modules\\Gateway\\Providers\\GatewayServiceProvider"
-  ],
-  "dependencies": [
-    "Foundation",
-    "User",
-    "Settings",
-    "Utility"
-  ],
-  "compatible_platforms": ["laraship"],
-  "enabled": true
+  "provider": "Providers\\GatewayServiceProvider",
+  "version": "0.1.0",
+  "load_order": "0",
+  "folder": "Gateway",
+  "autoload": "psr-4",
+  "icon": "fa fa-credit-card",
+  "require": {
+    "corals-foundation": "^10.0.0",
+    "corals-user": "^10.0.0",
+    "corals-settings": "^10.0.0",
+    "corals-utility": "^10.0.0"
+  }
 }
