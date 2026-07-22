@@ -31,6 +31,7 @@ class ReferenceGenerator
             'payment_intent_id' => $intent->id,
             'reference_token' => $token,
             'human_reference' => $token.Mod97Check::compute($token),
+            'barcode_payload' => BarcodePayload::encode($intent->merchant->mid, $token),
             'expires_at' => $intent->expires_at,
         ]);
     }

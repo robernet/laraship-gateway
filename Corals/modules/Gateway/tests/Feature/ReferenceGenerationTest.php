@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use Corals\Modules\Gateway\Core\References\BarcodePayload;
 use Corals\Modules\Gateway\Core\References\Mod97Check;
 use Corals\Modules\Gateway\Core\References\ReferenceGenerator;
 use Corals\Modules\Gateway\Models\PaymentIntent;
@@ -23,6 +24,10 @@ class ReferenceGenerationTest extends GatewayTestCase
             $reference->reference_token,
             substr($reference->human_reference, 10)
         ));
+        $this->assertSame(
+            ['mid' => $intent->merchant->mid, 'token' => $reference->reference_token],
+            BarcodePayload::decode($reference->barcode_payload)
+        );
     }
 
     public function test_deterministic_strategy_generates_a_valid_human_reference(): void
