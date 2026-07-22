@@ -27,7 +27,7 @@ class ModulesServiceProvider extends ServiceProvider
         try {
             $module = null;
 
-            $modules = app('db')->select("SELECT provider,id,code FROM modules where enabled=1 and provider is not null and type <> 'core' order by load_order");
+            $modules = app('db')->select("SELECT provider,id,code FROM modules where enabled = ? and provider is not null and type <> 'core' order by load_order", [true]);
 
             foreach ($modules as $module) {
                 $provider = $module->provider;
