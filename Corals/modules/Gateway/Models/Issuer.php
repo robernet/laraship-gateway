@@ -33,6 +33,10 @@ class Issuer extends Model
 
     protected static function booted()
     {
+        static::creating(function (self $issuer) {
+            $issuer->reference_secret ??= bin2hex(random_bytes(32));
+        });
+
         static::created(function (self $issuer) {
             $issuer->update(['public_id' => (new Hashids(config('app.key')))->encode($issuer->id)]);
         });
