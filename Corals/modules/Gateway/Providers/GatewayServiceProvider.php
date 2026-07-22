@@ -5,6 +5,7 @@ namespace Corals\Modules\Gateway\Providers;
 use Corals\Foundation\Facades\Actions;
 use Corals\Foundation\Providers\BasePackageServiceProvider;
 use Corals\Modules\Gateway\Commands\DailyCloseIntegrityCheck;
+use Corals\Modules\Gateway\Commands\IssueIssuerToken;
 use Corals\Modules\Gateway\Commands\RedeliverWebhooks;
 use Corals\Modules\Gateway\Core\Webhooks\WebhookDispatcher;
 use Corals\Settings\Facades\Modules;
@@ -36,6 +37,7 @@ class GatewayServiceProvider extends BasePackageServiceProvider
         $this->commands([
             DailyCloseIntegrityCheck::class,
             RedeliverWebhooks::class,
+            IssueIssuerToken::class,
         ]);
 
         foreach (['payment.confirmed', 'payment.credited', 'payment.expired', 'payment.voided', 'settlement.completed'] as $event) {
