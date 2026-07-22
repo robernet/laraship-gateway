@@ -1,5 +1,310 @@
-# STUB — the adapter<->core seam contract the future NestJS service must speak.
-# Messages: ValidateCollection, ConfirmCollection, IngestSettlementBatch (+ results/callbacks).
 asyncapi: 3.0.0
-info: { title: Gateway Adapter Contract, version: 0.1.0 }
-channels: {}
+info:
+  title: Gateway Adapter Contract
+  version: 0.1.0
+  description: >
+    The language-neutral seam between core (Laravel, permanent) and the adapter
+    layer (PHP mocks now, NestJS later). Every message carries contract_v: 1.
+    Direction A (adapter -> core): ValidateCollection, ConfirmCollection,
+    IngestSettlementBatch. Direction B (core -> adapter): DeliverAuthFields,
+    RequestRepoll. See docs/adapter-contract.md for the human contract.
+
+channels:
+  validateCollection:
+    address: gateway/core/validate-collection
+    messages:
+      validateCollection:
+        $ref: '#/components/messages/validateCollection'
+  validateCollectionResult:
+    address: gateway/adapter/validate-collection/result
+    messages:
+      validateResult:
+        $ref: '#/components/messages/validateResult'
+  confirmCollection:
+    address: gateway/core/confirm-collection
+    messages:
+      confirmCollection:
+        $ref: '#/components/messages/confirmCollection'
+  confirmCollectionResult:
+    address: gateway/adapter/confirm-collection/result
+    messages:
+      confirmResult:
+        $ref: '#/components/messages/confirmResult'
+  ingestSettlementBatch:
+    address: gateway/core/ingest-settlement-batch
+    messages:
+      ingestSettlementBatch:
+        $ref: '#/components/messages/ingestSettlementBatch'
+  deliverAuthFields:
+    address: gateway/adapter/deliver-auth-fields
+    messages:
+      deliverAuthFields:
+        $ref: '#/components/messages/deliverAuthFields'
+  requestRepoll:
+    address: gateway/adapter/request-repoll
+    messages:
+      requestRepoll:
+        $ref: '#/components/messages/requestRepoll'
+
+operations:
+  onValidateCollection:
+    action: receive
+    channel:
+      $ref: '#/channels/validateCollection'
+    summary: >
+      Core work: verify signature/expiry/replay, resolve MID→merchant→intent,
+      check pos_wallet.available >= amount_attempt, place a reservation.
+    messages:
+      - $ref: '#/channels/validateCollection/messages/validateCollection'
+    reply:
+      channel:
+        $ref: '#/channels/validateCollectionResult'
+      messages:
+        - $ref: '#/channels/validateCollectionResult/messages/validateResult'
+
+  onConfirmCollection:
+    action: receive
+    channel:
+      $ref: '#/channels/confirmCollection'
+    summary: >
+      Core work (one DB tx): idempotency check on network_txn_id, release
+      reservation, canonical double-entry posting, advance to CONFIRMED,
+      enqueue payment.confirmed. Replays return the stored result.
+    messages:
+      - $ref: '#/channels/confirmCollection/messages/confirmCollection'
+    reply:
+      channel:
+        $ref: '#/channels/confirmCollectionResult'
+      messages:
+        - $ref: '#/channels/confirmCollectionResult/messages/confirmResult'
+
+  onIngestSettlementBatch:
+    action: receive
+    channel:
+      $ref: '#/channels/ingestSettlementBatch'
+    summary: >
+      Core fans each row into an idempotent ConfirmCollection with
+      finality_hint=batch and no prior reservation. Row-level failures land
+      in reconciliation_exceptions, never blocking the batch.
+    messages:
+      - $ref: '#/channels/ingestSettlementBatch/messages/ingestSettlementBatch'
+
+  sendDeliverAuthFields:
+    action: send
+    channel:
+      $ref: '#/channels/deliverAuthFields'
+    summary: Push confirm receipt fields to a network that expects an async callback.
+    messages:
+      - $ref: '#/channels/deliverAuthFields/messages/deliverAuthFields'
+
+  sendRequestRepoll:
+    action: send
+    channel:
+      $ref: '#/channels/requestRepoll'
+    summary: Ask a batch adapter to re-fetch a window (recovery).
+    messages:
+      - $ref: '#/channels/requestRepoll/messages/requestRepoll'
+
+components:
+  messages:
+    validateCollection:
+      name: ValidateCollection
+      title: ValidateCollection
+      payload:
+        $ref: '#/components/schemas/ValidateCollectionRequest'
+    validateResult:
+      name: ValidateResult
+      title: ValidateResult
+      payload:
+        $ref: '#/components/schemas/ValidateCollectionResult'
+    confirmCollection:
+      name: ConfirmCollection
+      title: ConfirmCollection
+      payload:
+        $ref: '#/components/schemas/ConfirmCollectionRequest'
+    confirmResult:
+      name: ConfirmResult
+      title: ConfirmResult
+      payload:
+        $ref: '#/components/schemas/ConfirmCollectionResult'
+    ingestSettlementBatch:
+      name: IngestSettlementBatch
+      title: IngestSettlementBatch
+      payload:
+        $ref: '#/components/schemas/IngestSettlementBatchRequest'
+    deliverAuthFields:
+      name: DeliverAuthFields
+      title: DeliverAuthFields
+      payload:
+        $ref: '#/components/schemas/DeliverAuthFields'
+    requestRepoll:
+      name: RequestRepoll
+      title: RequestRepoll
+      payload:
+        $ref: '#/components/schemas/RequestRepoll'
+
+  schemas:
+    ContractVersion:
+      type: integer
+      const: 1
+
+    Money:
+      type: integer
+      minimum: 0
+      description: Integer centavos (MXN). Never a float.
+
+    ValidateCollectionRequest:
+      type: object
+      required: [contract_v, network_id, mid, ref, amount_attempt, store_id, terminal_id, request_id]
+      properties:
+        contract_v:
+          $ref: '#/components/schemas/ContractVersion'
+        network_id:
+          type: string
+        mid:
+          type: string
+          pattern: '^[0-9]{9}$'
+        ref:
+          type: string
+          pattern: '^[0-9]{10}$'
+        amount_attempt:
+          $ref: '#/components/schemas/Money'
+        store_id:
+          type: string
+        terminal_id:
+          type: string
+        request_id:
+          type: string
+
+    ValidateCollectionResult:
+      type: object
+      required: [ok]
+      properties:
+        ok:
+          type: boolean
+        intent_state:
+          type: string
+          enum: [CREATED, ACTIVE, PAID_PENDING_SETTLEMENT, SETTLED, EXPIRED, CANCELED]
+        amount_policy:
+          type: object
+        reservation_id:
+          type: string
+          nullable: true
+        decline_reason:
+          type: string
+          nullable: true
+          enum: [insufficient_funds, expired, tampered, replayed, policy_mismatch, null]
+
+    ConfirmCollectionRequest:
+      type: object
+      required: [contract_v, network_id, mid, ref, amount_paid, is_partial, network_txn_id, idempotency_key, store_id, terminal_id, collected_at]
+      properties:
+        contract_v:
+          $ref: '#/components/schemas/ContractVersion'
+        network_id:
+          type: string
+        mid:
+          type: string
+          pattern: '^[0-9]{9}$'
+        ref:
+          type: string
+          pattern: '^[0-9]{10}$'
+        amount_paid:
+          $ref: '#/components/schemas/Money'
+        is_partial:
+          type: boolean
+        network_txn_id:
+          type: string
+          description: UNIQUE — drives idempotency/duplicate prevention.
+        idempotency_key:
+          type: string
+        store_id:
+          type: string
+        terminal_id:
+          type: string
+        collected_at:
+          type: integer
+          description: Unix timestamp.
+
+    ConfirmCollectionResult:
+      type: object
+      required: [ok]
+      properties:
+        ok:
+          type: boolean
+        transaction_public_id:
+          type: string
+          nullable: true
+        auth_code:
+          type: string
+          nullable: true
+        receipt:
+          type: object
+          nullable: true
+          properties:
+            folio:
+              type: string
+            amount:
+              $ref: '#/components/schemas/Money'
+            ts:
+              type: integer
+        error:
+          type: string
+          nullable: true
+
+    IngestSettlementBatchRequest:
+      type: object
+      required: [contract_v, network_id, batch_id, rows]
+      properties:
+        contract_v:
+          $ref: '#/components/schemas/ContractVersion'
+        network_id:
+          type: string
+        batch_id:
+          type: string
+        rows:
+          type: array
+          items:
+            type: object
+            required: [network_txn_id, mid, ref, amount_paid, collected_at]
+            properties:
+              network_txn_id:
+                type: string
+              mid:
+                type: string
+                pattern: '^[0-9]{9}$'
+              ref:
+                type: string
+                pattern: '^[0-9]{10}$'
+              amount_paid:
+                $ref: '#/components/schemas/Money'
+              collected_at:
+                type: integer
+
+    DeliverAuthFields:
+      type: object
+      required: [network_txn_id, auth_code, receipt]
+      properties:
+        network_txn_id:
+          type: string
+        auth_code:
+          type: string
+        receipt:
+          type: object
+          properties:
+            folio:
+              type: string
+            amount:
+              $ref: '#/components/schemas/Money'
+            ts:
+              type: integer
+
+    RequestRepoll:
+      type: object
+      required: [network_id, since]
+      properties:
+        network_id:
+          type: string
+        since:
+          type: string
+          format: date-time
