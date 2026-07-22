@@ -39,7 +39,12 @@ return [
         'web' => [
             'driver' => 'session',
             'provider' => 'users',
-        ]
+        ],
+
+        'issuer' => [
+            'driver' => 'session',
+            'provider' => 'issuers',
+        ],
     ],
 
     /*
@@ -69,6 +74,11 @@ return [
         //     'driver' => 'database',
         //     'table' => 'users',
         // ],
+
+        'issuers' => [
+            'driver' => 'eloquent',
+            'model' => Corals\Modules\Gateway\Models\Issuer::class,
+        ],
     ],
 
     /*

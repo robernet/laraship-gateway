@@ -7,8 +7,10 @@ use Corals\Foundation\Providers\BasePackageServiceProvider;
 use Corals\Modules\Gateway\Commands\DailyCloseIntegrityCheck;
 use Corals\Modules\Gateway\Commands\IssueIssuerToken;
 use Corals\Modules\Gateway\Commands\RedeliverWebhooks;
+use Corals\Modules\Gateway\Commands\SetIssuerPassword;
 use Corals\Modules\Gateway\Core\Webhooks\WebhookDispatcher;
 use Corals\Settings\Facades\Modules;
+use Illuminate\Auth\Middleware\Authenticate;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Support\Facades\Route;
 
@@ -34,10 +36,26 @@ class GatewayServiceProvider extends BasePackageServiceProvider
             ->middleware('api')
             ->group(__DIR__.'/../routes/issuer.php');
 
+        Route::prefix('portal')
+            ->middleware('web')
+            ->group(__DIR__.'/../routes/portal.php');
+
+        // The app registers no global Authenticate::redirectUsing() callback,
+        // so an unauthenticated non-JSON request gets a bare 401 everywhere
+        // (see Illuminate\Foundation\Exceptions\Handler::unauthenticated).
+        // Scoped to portal/* only, so every other guard's behavior is
+        // unchanged — a guest hitting the portal gets sent to its login page.
+        Authenticate::redirectUsing(function ($request) {
+            if ($request->is('portal*')) {
+                return route('gateway.portal.login');
+            }
+        });
+
         $this->commands([
             DailyCloseIntegrityCheck::class,
             RedeliverWebhooks::class,
             IssueIssuerToken::class,
+            SetIssuerPassword::class,
         ]);
 
         foreach (['payment.confirmed', 'payment.credited', 'payment.expired', 'payment.voided', 'settlement.completed'] as $event) {

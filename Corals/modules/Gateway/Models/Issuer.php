@@ -11,9 +11,9 @@ use Illuminate\Database\Eloquent\Model;
 use Laravel\Sanctum\HasApiTokens;
 
 /**
- * Issuer doubles as the Sanctum-authenticatable principal for the Issuer API
- * (GW-301). Full scoped abilities + rate limiting land in GW-305; this is
- * just enough auth to identify which issuer is calling.
+ * Issuer doubles as both the Sanctum-authenticatable principal for the
+ * Issuer API (GW-301) and the session-authenticatable principal for the
+ * issuer portal (GW-306), via the `issuer` guard/provider in config/auth.php.
  */
 class Issuer extends Model implements AuthenticatableContract
 {
@@ -27,7 +27,18 @@ class Issuer extends Model implements AuthenticatableContract
         'webhook_url',
         'webhook_secret',
         'finality_policy',
+        'email',
+        'password',
     ];
+
+    protected $hidden = [
+        'password',
+    ];
+
+    public function setPasswordAttribute($value)
+    {
+        $this->attributes['password'] = bcrypt($value);
+    }
 
     protected static function newFactory(): IssuerFactory
     {

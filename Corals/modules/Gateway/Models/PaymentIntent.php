@@ -13,6 +13,7 @@ class PaymentIntent extends Model
 
     protected $casts = [
         'amount_policy' => 'array',
+        'expires_at' => 'datetime',
     ];
 
     protected $fillable = [

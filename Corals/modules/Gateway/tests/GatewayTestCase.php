@@ -4,6 +4,7 @@ namespace Corals\Modules\Gateway\tests;
 
 use Corals\Modules\Gateway\database\migrations\AuditLogTables;
 use Corals\Modules\Gateway\database\migrations\IdempotencyKeysTable;
+use Corals\Modules\Gateway\database\migrations\IssuerPortalLoginColumns;
 use Corals\Modules\Gateway\database\migrations\IssuerReferenceSecretColumn;
 use Corals\Modules\Gateway\database\migrations\IssuersMerchantsTables;
 use Corals\Modules\Gateway\database\migrations\LedgerEntriesTables;
@@ -36,6 +37,10 @@ abstract class GatewayTestCase extends TestCase
 
         if (! Schema::hasColumn('issuers', 'reference_secret')) {
             (new IssuerReferenceSecretColumn())->up();
+        }
+
+        if (! Schema::hasColumn('issuers', 'password')) {
+            (new IssuerPortalLoginColumns())->up();
         }
 
         if (! Schema::hasTable('pos_wallets')) {

@@ -16,6 +16,8 @@ mix.js('resources/themes/reservation-doctors/assets/PublicReservation/Schedule.j
 
 mix.js('resources/themes/reservation-touring/assets/Booking/Booking.js', 'assets/themes/reservation-touring/dist/js');
 
+mix.js('Corals/modules/Gateway/resources/assets/js/portal.js', 'assets/gateway');
+
 
 //keep the following last thing to generate the files in public
 mix.extract(vendorPackages);
