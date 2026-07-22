@@ -2,10 +2,19 @@
 
 namespace Corals\Modules\Gateway\Models;
 
-/**
- * STUB — generated in M0–M4. Eloquent model (persistence).
- * See Corals/modules/Gateway/CLAUDE.md for invariants.
- */
-class ReconciliationException
+use Illuminate\Database\Eloquent\Model;
+
+class ReconciliationException extends Model
 {
+    protected $casts = [
+        'refs' => 'array',
+    ];
+
+    protected $fillable = [
+        'type',
+        'refs',
+        'state',
+        'assignee',
+        'resolution',
+    ];
 }

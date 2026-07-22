@@ -6,6 +6,7 @@ use Corals\Modules\Gateway\database\migrations\AuditLogTables;
 use Corals\Modules\Gateway\database\migrations\IssuersMerchantsTables;
 use Corals\Modules\Gateway\database\migrations\LedgerEntriesTables;
 use Corals\Modules\Gateway\database\migrations\PosWalletsTables;
+use Corals\Modules\Gateway\database\migrations\ReconciliationExceptionsTables;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Tests\TestCase;
@@ -38,6 +39,10 @@ abstract class GatewayTestCase extends TestCase
 
         if (! Schema::hasTable('audit_log')) {
             (new AuditLogTables())->up();
+        }
+
+        if (! Schema::hasTable('reconciliation_exceptions')) {
+            (new ReconciliationExceptionsTables())->up();
         }
 
         DB::beginTransaction();
