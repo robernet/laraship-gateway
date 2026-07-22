@@ -5,6 +5,7 @@ namespace Tests\Feature\Ledger;
 use Corals\Modules\Gateway\Core\Ledger\Postings\ConfirmedCollectionPosting;
 use Corals\Modules\Gateway\Models\Issuer;
 use Corals\Modules\Gateway\Models\LedgerEntry;
+use Corals\Modules\Gateway\Models\OutboxEvent;
 use Corals\Modules\Gateway\Models\PosWallet;
 use Corals\Modules\Gateway\tests\GatewayTestCase;
 use RuntimeException;
@@ -76,6 +77,51 @@ class ConfirmedCollectionPostingTest extends GatewayTestCase
         $this->assertSame(0, LedgerEntry::count());
     }
 
+    public function test_writes_a_payment_confirmed_outbox_event_atomically_with_the_posting(): void
+    {
+        $wallet = PosWallet::factory()->create(['balance_centavos' => 10000]);
+        $issuer = Issuer::factory()->create();
+
+        $postingId = (new ConfirmedCollectionPosting())->apply(
+            transactionId: 1,
+            posWalletId: $wallet->id,
+            issuerId: $issuer->id,
+            amountCentavos: 10000,
+            commissionCentavos: 150,
+            feeCentavos: 50
+        );
+
+        $this->assertSame(1, OutboxEvent::count());
+
+        $event = OutboxEvent::first();
+        $this->assertSame('payment.confirmed', $event->event);
+        $this->assertSame('pending', $event->status);
+        $this->assertSame($postingId, $event->payload['posting_id']);
+        $this->assertSame(1, $event->payload['transaction_id']);
+        $this->assertSame(10000, $event->payload['amount_centavos']);
+    }
+
+    public function test_debit_exceeding_balance_writes_no_outbox_event(): void
+    {
+        $wallet = PosWallet::factory()->create(['balance_centavos' => 5000]);
+        $issuer = Issuer::factory()->create();
+
+        try {
+            (new ConfirmedCollectionPosting())->apply(
+                transactionId: 1,
+                posWalletId: $wallet->id,
+                issuerId: $issuer->id,
+                amountCentavos: 10000,
+                commissionCentavos: 150,
+                feeCentavos: 50
+            );
+        } catch (RuntimeException $e) {
+            // expected decline, asserted elsewhere
+        }
+
+        $this->assertSame(0, OutboxEvent::count());
+    }
+
     public function test_replaying_the_same_transaction_does_not_double_post(): void
     {
         $wallet = PosWallet::factory()->create(['balance_centavos' => 10000]);
@@ -106,6 +152,7 @@ class ConfirmedCollectionPostingTest extends GatewayTestCase
             1,
             LedgerEntry::where('transaction_id', 1)->where('account_type', 'pos_wallet')->count()
         );
+        $this->assertSame(1, OutboxEvent::count());
 
         $wallet->refresh();
         $this->assertSame(0, $wallet->balance_centavos);

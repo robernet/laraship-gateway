@@ -3,6 +3,7 @@
 namespace Corals\Modules\Gateway\Core\Ledger\Postings;
 
 use Corals\Modules\Gateway\Models\LedgerEntry;
+use Corals\Modules\Gateway\Models\OutboxEvent;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use RuntimeException;
@@ -100,6 +101,17 @@ class ConfirmedCollectionPosting
             $this->assertBalanced($legs);
 
             DB::table('ledger_entries')->insert($legs);
+
+            OutboxEvent::create([
+                'event' => 'payment.confirmed',
+                'payload' => [
+                    'transaction_id' => $transactionId,
+                    'posting_id' => $postingId,
+                    'pos_wallet_id' => $posWalletId,
+                    'issuer_id' => $issuerId,
+                    'amount_centavos' => $amountCentavos,
+                ],
+            ]);
 
             return $postingId;
         });
