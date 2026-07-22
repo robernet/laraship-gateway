@@ -2,6 +2,7 @@
 
 namespace Corals\Modules\Gateway\tests;
 
+use Corals\Modules\Gateway\database\migrations\AuditLogTables;
 use Corals\Modules\Gateway\database\migrations\IssuersMerchantsTables;
 use Corals\Modules\Gateway\database\migrations\LedgerEntriesTables;
 use Corals\Modules\Gateway\database\migrations\PosWalletsTables;
@@ -33,6 +34,10 @@ abstract class GatewayTestCase extends TestCase
 
         if (! Schema::hasTable('ledger_entries')) {
             (new LedgerEntriesTables())->up();
+        }
+
+        if (! Schema::hasTable('audit_log')) {
+            (new AuditLogTables())->up();
         }
 
         DB::beginTransaction();
