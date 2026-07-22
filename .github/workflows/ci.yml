@@ -55,7 +55,7 @@ jobs:
 
       - name: App key
         run: |
-          cp .env.example .env || true
+          touch .env
           php artisan key:generate --ansi
 
       # --- gates in order; any red fails the build ---
