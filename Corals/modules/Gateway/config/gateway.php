@@ -17,4 +17,8 @@ return [
     // one, but out of scope until a second rate is actually required).
     'commission_bps' => env('GATEWAY_COMMISSION_BPS', 150),
     'fixed_fee_centavos' => env('GATEWAY_FIXED_FEE_CENTAVOS', 50),
+
+    // GW-503: max centavos a network remittance amount may differ from the
+    // booked transaction before it opens an amount_mismatch exception.
+    'reconciliation_tolerance_centavos' => env('GATEWAY_RECONCILIATION_TOLERANCE_CENTAVOS', 0),
 ];
