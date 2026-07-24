@@ -4,6 +4,7 @@ use Corals\Modules\Gateway\Http\Controllers\Portal\ApiKeyController;
 use Corals\Modules\Gateway\Http\Controllers\Portal\AuthController;
 use Corals\Modules\Gateway\Http\Controllers\Portal\DocsController;
 use Corals\Modules\Gateway\Http\Controllers\Portal\PaymentIntentController;
+use Corals\Modules\Gateway\Http\Controllers\Portal\SimulatorController;
 use Corals\Modules\Gateway\Http\Controllers\Portal\WebhookSettingsController;
 use Illuminate\Support\Facades\Route;
 
@@ -31,3 +32,8 @@ Route::post('webhook/test', [WebhookSettingsController::class, 'test'])->name('g
 
 Route::get('docs', [DocsController::class, 'index'])->name('gateway.portal.docs');
 Route::get('docs/openapi.yaml', [DocsController::class, 'spec'])->name('gateway.portal.docs.spec');
+
+Route::get('simulator', [SimulatorController::class, 'index'])->name('gateway.portal.simulator.index');
+Route::post('simulator/intents', [SimulatorController::class, 'createIntent'])->name('gateway.portal.simulator.intents.store');
+Route::post('simulator/validate', [SimulatorController::class, 'validateCollection'])->name('gateway.portal.simulator.validate');
+Route::post('simulator/confirm', [SimulatorController::class, 'confirmCollection'])->name('gateway.portal.simulator.confirm');

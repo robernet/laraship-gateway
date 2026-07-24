@@ -28,6 +28,7 @@
         <span class="brand">{{ auth('issuer')->user()->name }} &middot; Issuer Portal</span>
         <nav>
             <a href="{{ route('gateway.portal.dashboard') }}">Payment intents</a>
+            <a href="{{ route('gateway.portal.simulator.index') }}">POS simulator</a>
             <a href="{{ route('gateway.portal.api-keys.index') }}">API keys</a>
             <a href="{{ route('gateway.portal.webhook.edit') }}">Webhook</a>
             <a href="{{ route('gateway.portal.docs') }}">API docs</a>
