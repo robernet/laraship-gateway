@@ -37,6 +37,15 @@ deptrac:
     Core:
       - Contracts
       - Models
-    # Ports and persistence depend on nothing internal.
-    Contracts: ~
+    # Ports depend on Core ONLY through Contracts\Drivers\InProcessDriver
+    # (GW-404), the Phase-1 transport that bridges DTOs in-process to the
+    # already-shipped Core\Collections\* services (docs/adapter-contract.md
+    # "Transport"). This does not weaken the seam: the seam's hard rule is
+    # "Adapters -> Contracts only" (unchanged, still enforced above) — a
+    # driver reaching into Core to actually do the work is the seam
+    # fulfilling its purpose, not violating it. Contracts still may not
+    # depend on Adapters, Http, or Models.
+    Contracts:
+      - Core
+    # Persistence depends on nothing internal.
     Models: ~

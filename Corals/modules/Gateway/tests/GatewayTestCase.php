@@ -8,6 +8,7 @@ use Corals\Modules\Gateway\database\migrations\IssuerPortalLoginColumns;
 use Corals\Modules\Gateway\database\migrations\IssuerReferenceSecretColumn;
 use Corals\Modules\Gateway\database\migrations\IssuersMerchantsTables;
 use Corals\Modules\Gateway\database\migrations\LedgerEntriesTables;
+use Corals\Modules\Gateway\database\migrations\NetworkAdaptersTable;
 use Corals\Modules\Gateway\database\migrations\NetworkCredentialsTable;
 use Corals\Modules\Gateway\database\migrations\OutboxEventsTable;
 use Corals\Modules\Gateway\database\migrations\PaymentIntentSandboxColumn;
@@ -84,6 +85,10 @@ abstract class GatewayTestCase extends TestCase
 
         if (! Schema::hasTable('network_credentials')) {
             (new NetworkCredentialsTable())->up();
+        }
+
+        if (! Schema::hasTable('network_adapters')) {
+            (new NetworkAdaptersTable())->up();
         }
 
         if (! Schema::hasTable('transactions')) {

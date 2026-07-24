@@ -58,9 +58,12 @@
   "require-dev": {
     "barryvdh/laravel-debugbar": "^4.0",
     "barryvdh/laravel-translation-manager": "^0.6.9",
+    "deptrac/deptrac": "^4.7",
     "fakerphp/faker": "^1.23.1",
     "filp/whoops": "^2.15.4",
+    "larastan/larastan": "^3.10",
     "laravel/boost": "^2.4",
+    "laravel/pint": "^1.29",
     "mockery/mockery": "^1.6.12",
     "orangehill/iseed": "^v3.0.4",
     "phpunit/phpunit": "^12.0"
