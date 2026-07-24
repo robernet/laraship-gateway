@@ -21,4 +21,16 @@ return [
     // GW-503: max centavos a network remittance amount may differ from the
     // booked transaction before it opens an amount_mismatch exception.
     'reconciliation_tolerance_centavos' => env('GATEWAY_RECONCILIATION_TOLERANCE_CENTAVOS', 0),
+
+    // GW-504: admin resource config consumed by Corals\Foundation's
+    // ModelHelpersTrait/ModelActionsTrait (edit-URL generation, action
+    // buttons) — mirrors Corals/core/Activity/config/activity.php "models".
+    'models' => [
+        'reconciliation_exception' => [
+            'resource_url' => 'reconciliation-exceptions',
+            'actions' => [
+                'edit' => [],
+            ],
+        ],
+    ],
 ];

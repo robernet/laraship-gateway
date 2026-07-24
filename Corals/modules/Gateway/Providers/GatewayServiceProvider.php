@@ -13,14 +13,17 @@ use Corals\Modules\Gateway\Commands\ReleaseExpiredReservations;
 use Corals\Modules\Gateway\Commands\RevokeTerminalToken;
 use Corals\Modules\Gateway\Commands\SetIssuerPassword;
 use Corals\Modules\Gateway\Core\Webhooks\WebhookDispatcher;
+use Corals\Modules\Gateway\Models\ReconciliationException;
+use Corals\Modules\Gateway\Policies\ReconciliationExceptionPolicy;
 use Corals\Settings\Facades\Modules;
 use Illuminate\Auth\Middleware\Authenticate;
 use Illuminate\Console\Scheduling\Schedule;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Route;
 
 /**
- * Minimal registration only (config/views/lang). Policies and the AdapterGateway
- * binding are wired in later tickets — see Corals/modules/Gateway/CLAUDE.md for invariants.
+ * Minimal registration only (config/views/lang). The AdapterGateway binding is
+ * wired in a later ticket — see Corals/modules/Gateway/CLAUDE.md for invariants.
  */
 class GatewayServiceProvider extends BasePackageServiceProvider
 {
@@ -47,6 +50,11 @@ class GatewayServiceProvider extends BasePackageServiceProvider
         Route::prefix('portal')
             ->middleware('web')
             ->group(__DIR__.'/../routes/portal.php');
+
+        Route::middleware('web')
+            ->group(__DIR__.'/../routes/web.php');
+
+        Gate::policy(ReconciliationException::class, ReconciliationExceptionPolicy::class);
 
         // The app registers no global Authenticate::redirectUsing() callback,
         // so an unauthenticated non-JSON request gets a bare 401 everywhere
