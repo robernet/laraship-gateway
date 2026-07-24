@@ -18,6 +18,7 @@ use Corals\Modules\Gateway\database\migrations\ReconciliationExceptionsTables;
 use Corals\Modules\Gateway\database\migrations\SettlementsTable;
 use Corals\Modules\Gateway\database\migrations\TerminalCredentialColumn;
 use Corals\Modules\Gateway\database\migrations\TransactionsTable;
+use Corals\Modules\Gateway\database\migrations\VoidRequestsTable;
 use Corals\Modules\Gateway\database\migrations\WalletTopUpsPosWalletNullableColumn;
 use Corals\Modules\Gateway\database\migrations\WebhookDeliveriesTable;
 use Illuminate\Support\Facades\DB;
@@ -112,6 +113,10 @@ abstract class GatewayTestCase extends TestCase
 
         if (! Schema::hasTable('settlements')) {
             (new SettlementsTable)->up();
+        }
+
+        if (! Schema::hasTable('void_requests')) {
+            (new VoidRequestsTable)->up();
         }
 
         DB::beginTransaction();

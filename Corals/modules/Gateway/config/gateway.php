@@ -22,6 +22,11 @@ return [
     // booked transaction before it opens an amount_mismatch exception.
     'reconciliation_tolerance_centavos' => env('GATEWAY_RECONCILIATION_TOLERANCE_CENTAVOS', 0),
 
+    // GW-505: how long after confirmed_at a transaction stays voidable, and
+    // the amount at/above which a void needs a second, distinct approver.
+    'void_window_seconds' => env('GATEWAY_VOID_WINDOW_SECONDS', 86400),
+    'void_dual_control_threshold_centavos' => env('GATEWAY_VOID_DUAL_CONTROL_THRESHOLD_CENTAVOS', 500000),
+
     // GW-504: admin resource config consumed by Corals\Foundation's
     // ModelHelpersTrait/ModelActionsTrait (edit-URL generation, action
     // buttons) — mirrors Corals/core/Activity/config/activity.php "models".
