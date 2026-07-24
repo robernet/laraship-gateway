@@ -17,6 +17,7 @@ use Corals\Modules\Gateway\database\migrations\PosWalletsTables;
 use Corals\Modules\Gateway\database\migrations\ReconciliationExceptionsTables;
 use Corals\Modules\Gateway\database\migrations\TerminalCredentialColumn;
 use Corals\Modules\Gateway\database\migrations\TransactionsTable;
+use Corals\Modules\Gateway\database\migrations\WalletTopUpsPosWalletNullableColumn;
 use Corals\Modules\Gateway\database\migrations\WebhookDeliveriesTable;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
@@ -37,67 +38,75 @@ abstract class GatewayTestCase extends TestCase
         parent::setUp();
 
         if (! Schema::hasTable('issuers')) {
-            (new IssuersMerchantsTables())->up();
+            (new IssuersMerchantsTables)->up();
         }
 
         if (! Schema::hasColumn('issuers', 'reference_secret')) {
-            (new IssuerReferenceSecretColumn())->up();
+            (new IssuerReferenceSecretColumn)->up();
         }
 
         if (! Schema::hasColumn('issuers', 'password')) {
-            (new IssuerPortalLoginColumns())->up();
+            (new IssuerPortalLoginColumns)->up();
         }
 
         if (! Schema::hasTable('pos_wallets')) {
-            (new PosWalletsTables())->up();
+            (new PosWalletsTables)->up();
+        }
+
+        $posWalletIdNullable = DB::selectOne(
+            "SELECT is_nullable FROM information_schema.columns WHERE table_name = 'wallet_top_ups' AND column_name = 'pos_wallet_id'"
+        );
+
+        if ($posWalletIdNullable && $posWalletIdNullable->is_nullable === 'NO') {
+            (new WalletTopUpsPosWalletNullableColumn)->up();
         }
 
         if (! Schema::hasTable('ledger_entries')) {
-            (new LedgerEntriesTables())->up();
+            (new LedgerEntriesTables)->up();
         }
 
         if (! Schema::hasTable('audit_log')) {
-            (new AuditLogTables())->up();
+            (new AuditLogTables)->up();
         }
 
         if (! Schema::hasTable('reconciliation_exceptions')) {
-            (new ReconciliationExceptionsTables())->up();
+            (new ReconciliationExceptionsTables)->up();
         }
 
         if (! Schema::hasTable('payment_intents')) {
-            (new PaymentIntentsTables())->up();
+            (new PaymentIntentsTables)->up();
         }
 
         if (! Schema::hasColumn('payment_intents', 'sandbox')) {
-            (new PaymentIntentSandboxColumn())->up();
+            (new PaymentIntentSandboxColumn)->up();
         }
 
         if (! Schema::hasTable('idempotency_keys')) {
-            (new IdempotencyKeysTable())->up();
+            (new IdempotencyKeysTable)->up();
         }
 
         if (! Schema::hasTable('outbox_events')) {
-            (new OutboxEventsTable())->up();
+            (new OutboxEventsTable)->up();
         }
 
         if (! Schema::hasTable('webhook_deliveries')) {
-            (new WebhookDeliveriesTable())->up();
+            (new WebhookDeliveriesTable)->up();
         }
 
         if (! Schema::hasTable('network_credentials')) {
-            (new NetworkCredentialsTable())->up();
+            (new NetworkCredentialsTable)->up();
         }
 
         if (! Schema::hasColumn('network_credentials', 'terminal_id')) {
-            (new TerminalCredentialColumn())->up();
+            (new TerminalCredentialColumn)->up();
         }
 
         if (! Schema::hasTable('network_adapters')) {
-            (new NetworkAdaptersTable())->up();
+            (new NetworkAdaptersTable)->up();
         }
 
         if (! Schema::hasTable('transactions')) {
-            (new TransactionsTable())->up();
+            (new TransactionsTable)->up();
         }
 
         DB::beginTransaction();
