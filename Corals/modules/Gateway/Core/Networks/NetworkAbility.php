@@ -9,6 +9,7 @@ namespace Corals\Modules\Gateway\Core\Networks;
 enum NetworkAbility: string
 {
     case ValidateCollection = 'cash:validate';
+    case ConfirmCollection = 'cash:confirm';
 
     /**
      * @return array<int, string>

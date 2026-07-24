@@ -29,7 +29,8 @@ class ConfirmedCollectionPosting
         int $issuerId,
         int $amountCentavos,
         int $commissionCentavos,
-        int $feeCentavos
+        int $feeCentavos,
+        string $event = 'payment.confirmed'
     ): string {
         return DB::transaction(function () use (
             $transactionId,
@@ -37,7 +38,8 @@ class ConfirmedCollectionPosting
             $issuerId,
             $amountCentavos,
             $commissionCentavos,
-            $feeCentavos
+            $feeCentavos,
+            $event
         ) {
             $existingPostingId = LedgerEntry::where('transaction_id', $transactionId)
                 ->where('account_type', 'pos_wallet')
@@ -103,7 +105,7 @@ class ConfirmedCollectionPosting
             DB::table('ledger_entries')->insert($legs);
 
             OutboxEvent::create([
-                'event' => 'payment.confirmed',
+                'event' => $event,
                 'payload' => [
                     'transaction_id' => $transactionId,
                     'posting_id' => $postingId,

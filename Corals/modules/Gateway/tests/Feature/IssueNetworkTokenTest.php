@@ -13,7 +13,7 @@ class IssueNetworkTokenTest extends GatewayTestCase
         $this->artisan('gateway:network:issue-token', ['network_id' => 'mock-realtime'])->assertSuccessful();
 
         $credential = NetworkCredential::where('network_id', 'mock-realtime')->sole();
-        $this->assertSame([NetworkAbility::ValidateCollection->value], $credential->tokens()->sole()->abilities);
+        $this->assertSame(NetworkAbility::values(), $credential->tokens()->sole()->abilities);
     }
 
     public function test_reissuing_reuses_the_existing_credential(): void

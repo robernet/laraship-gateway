@@ -11,4 +11,10 @@ return [
     // before ReleaseExpiredReservations reclaims it — also the replay-cache
     // TTL fallback when a reference has no expires_at.
     'reservation_ttl_seconds' => env('GATEWAY_RESERVATION_TTL_SECONDS', 300),
+
+    // GW-402: flat v1 pricing (ponytail — one global rate; per-network/
+    // per-merchant rate tables are a real future need, not a hypothetical
+    // one, but out of scope until a second rate is actually required).
+    'commission_bps' => env('GATEWAY_COMMISSION_BPS', 150),
+    'fixed_fee_centavos' => env('GATEWAY_FIXED_FEE_CENTAVOS', 50),
 ];
