@@ -26,6 +26,11 @@
                     </label>
                 @endforeach
             </div>
+            <div class="field">
+                <label style="font-weight: normal;">
+                    <input type="checkbox" name="sandbox" value="1"> Sandbox key (tags created payment intents as test data, not real money movement)
+                </label>
+            </div>
             <button type="submit">Issue token</button>
         </form>
     </div>
@@ -40,7 +45,12 @@
                 @foreach ($tokens as $token)
                     <tr>
                         <td>{{ $token->name }}</td>
-                        <td>{{ implode(', ', $token->abilities) }}</td>
+                        <td>
+                            {{ implode(', ', $token->abilities) }}
+                            @if (in_array('sandbox', $token->abilities))
+                                <span style="color: #b45309;">(sandbox)</span>
+                            @endif
+                        </td>
                         <td>{{ optional($token->expires_at)->toDayDateTimeString() ?? 'never' }}</td>
                         <td>{{ optional($token->last_used_at)->diffForHumans() ?? 'never' }}</td>
                         <td>

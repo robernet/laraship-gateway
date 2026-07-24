@@ -26,7 +26,7 @@ class ApiKeyController extends Controller
 
         return view('Gateway::portal.api-keys', [
             'tokens' => $issuer->tokens()->latest()->get(),
-            'abilities' => IssuerAbility::values(),
+            'abilities' => array_diff(IssuerAbility::values(), [IssuerAbility::Sandbox->value]),
         ]);
     }
 
@@ -38,11 +38,24 @@ class ApiKeyController extends Controller
         $data = $request->validate([
             'abilities' => ['sometimes', 'array'],
             'abilities.*' => ['string', 'in:'.implode(',', IssuerAbility::values())],
+            'sandbox' => ['sometimes', 'boolean'],
             'ttl_minutes' => ['sometimes', 'integer', 'min:1'],
         ]);
 
-        $abilities = $data['abilities'] ?? IssuerAbility::values();
-        $ttlMinutes = $data['ttl_minutes'] ?? config('gateway.issuer_token_ttl_minutes');
+        // Sandbox is opt-in only — never part of the "select all abilities"
+        // default, so an issuer who omits `abilities` still gets a normal
+        // (non-sandbox) token (GW-307).
+        $abilities = $data['abilities'] ?? array_diff(IssuerAbility::values(), [IssuerAbility::Sandbox->value]);
+
+        if ($data['sandbox'] ?? false) {
+            $abilities[] = IssuerAbility::Sandbox->value;
+        }
+
+        // Laravel's `integer` validation rule checks the type, it doesn't cast
+        // the value — an HTML form always submits ttl_minutes as a string, and
+        // Carbon::addMinutes() rejects that (a plain int, from tests calling
+        // this endpoint with a native payload, passed through unnoticed).
+        $ttlMinutes = (int) ($data['ttl_minutes'] ?? config('gateway.issuer_token_ttl_minutes'));
 
         $token = $issuer->createToken('gateway-portal', $abilities, now()->addMinutes($ttlMinutes));
 

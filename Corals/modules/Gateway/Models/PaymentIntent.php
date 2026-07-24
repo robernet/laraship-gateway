@@ -14,6 +14,7 @@ class PaymentIntent extends Model
     protected $casts = [
         'amount_policy' => 'array',
         'expires_at' => 'datetime',
+        'sandbox' => 'boolean',
     ];
 
     protected $fillable = [
@@ -25,6 +26,7 @@ class PaymentIntent extends Model
         'amount_policy',
         'mapping_strategy',
         'state',
+        'sandbox',
         'expires_at',
         'max_payments',
         'overpay_policy',

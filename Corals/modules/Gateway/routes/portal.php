@@ -2,6 +2,7 @@
 
 use Corals\Modules\Gateway\Http\Controllers\Portal\ApiKeyController;
 use Corals\Modules\Gateway\Http\Controllers\Portal\AuthController;
+use Corals\Modules\Gateway\Http\Controllers\Portal\DocsController;
 use Corals\Modules\Gateway\Http\Controllers\Portal\PaymentIntentController;
 use Corals\Modules\Gateway\Http\Controllers\Portal\WebhookSettingsController;
 use Illuminate\Support\Facades\Route;
@@ -26,3 +27,7 @@ Route::delete('api-keys/{token}', [ApiKeyController::class, 'destroy'])->name('g
 
 Route::get('webhook', [WebhookSettingsController::class, 'edit'])->name('gateway.portal.webhook.edit');
 Route::put('webhook', [WebhookSettingsController::class, 'update'])->name('gateway.portal.webhook.update');
+Route::post('webhook/test', [WebhookSettingsController::class, 'test'])->name('gateway.portal.webhook.test');
+
+Route::get('docs', [DocsController::class, 'index'])->name('gateway.portal.docs');
+Route::get('docs/openapi.yaml', [DocsController::class, 'spec'])->name('gateway.portal.docs.spec');

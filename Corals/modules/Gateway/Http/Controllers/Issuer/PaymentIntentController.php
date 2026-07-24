@@ -5,6 +5,7 @@ namespace Corals\Modules\Gateway\Http\Controllers\Issuer;
 use Corals\Foundation\Http\Controllers\APIBaseController;
 use Corals\Modules\Gateway\Core\Intents\CreatePaymentIntent;
 use Corals\Modules\Gateway\Core\Intents\IdempotentRequest;
+use Corals\Modules\Gateway\Core\Issuers\IssuerAbility;
 use Corals\Modules\Gateway\Http\Requests\CreatePaymentIntentRequest;
 use Corals\Modules\Gateway\Models\Issuer;
 use Corals\Modules\Gateway\Models\PaymentIntent;
@@ -34,14 +35,15 @@ class PaymentIntentController extends APIBaseController
         /** @var Issuer $issuer */
         $issuer = $request->user();
         $data = $request->validated();
+        $sandbox = (bool) $request->user()->currentAccessToken()?->can(IssuerAbility::Sandbox->value);
 
         $result = (new IdempotentRequest())->handle(
             scope: "gateway:create_payment_intent:{$issuer->id}",
             key: $idempotencyKey,
             requestPayload: $data,
             ttlSeconds: 86400,
-            operation: function () use ($issuer, $data) {
-                $intent = (new CreatePaymentIntent())->handle($issuer, $data);
+            operation: function () use ($issuer, $data, $sandbox) {
+                $intent = (new CreatePaymentIntent())->handle($issuer, $data, $sandbox);
 
                 return [201, (new PaymentIntentTransformer())->transform($intent)];
             }

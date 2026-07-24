@@ -125,4 +125,33 @@ class CreatePaymentIntentTest extends GatewayTestCase
 
         $response->assertStatus(401);
     }
+
+    public function test_a_sandbox_token_creates_a_sandbox_flagged_intent(): void
+    {
+        $issuer = Issuer::factory()->create();
+        $merchant = Merchant::factory()->create(['issuer_id' => $issuer->id]);
+        Sanctum::actingAs($issuer, ['payment-intents:write', 'sandbox']);
+
+        $response = $this->postJson('/api/v1/payment-intents', $this->payload($merchant->mid), [
+            'Idempotency-Key' => 'key-sandbox',
+        ]);
+
+        $response->assertStatus(201);
+        $response->assertJsonPath('sandbox', true);
+        $this->assertTrue(PaymentIntent::first()->sandbox);
+    }
+
+    public function test_a_token_without_the_sandbox_ability_creates_a_non_sandbox_intent(): void
+    {
+        $issuer = Issuer::factory()->create();
+        $merchant = Merchant::factory()->create(['issuer_id' => $issuer->id]);
+        Sanctum::actingAs($issuer, ['payment-intents:write']);
+
+        $response = $this->postJson('/api/v1/payment-intents', $this->payload($merchant->mid), [
+            'Idempotency-Key' => 'key-non-sandbox',
+        ]);
+
+        $response->assertStatus(201);
+        $response->assertJsonPath('sandbox', false);
+    }
 }

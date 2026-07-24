@@ -12,6 +12,14 @@ enum IssuerAbility: string
     case ReadPaymentIntents = 'payment-intents:read';
 
     /**
+     * Marker ability (GW-307): tags payment intents created with this token
+     * as sandbox/test data. Deliberately excluded from the portal's
+     * "select all by default" token-creation form — see
+     * Portal\ApiKeyController.
+     */
+    case Sandbox = 'sandbox';
+
+    /**
      * @return array<int, string>
      */
     public static function values(): array

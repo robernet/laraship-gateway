@@ -48,4 +48,25 @@ class ApiKeyPortalTest extends GatewayTestCase
     {
         $this->get('/portal/api-keys')->assertRedirect(route('gateway.portal.login'));
     }
+
+    public function test_issuing_a_token_without_the_sandbox_checkbox_does_not_grant_the_sandbox_ability(): void
+    {
+        $issuer = Issuer::factory()->create();
+
+        $this->actingAs($issuer, 'issuer')->post('/portal/api-keys', ['ttl_minutes' => 60]);
+
+        $this->assertNotContains('sandbox', $issuer->tokens()->first()->abilities);
+    }
+
+    public function test_issuing_a_token_with_the_sandbox_checkbox_grants_the_sandbox_ability(): void
+    {
+        $issuer = Issuer::factory()->create();
+
+        $this->actingAs($issuer, 'issuer')->post('/portal/api-keys', [
+            'ttl_minutes' => 60,
+            'sandbox' => '1',
+        ]);
+
+        $this->assertContains('sandbox', $issuer->tokens()->first()->abilities);
+    }
 }

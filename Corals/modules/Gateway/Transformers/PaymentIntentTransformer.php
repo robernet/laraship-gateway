@@ -16,6 +16,7 @@ class PaymentIntentTransformer extends APIBaseTransformer
             'mode' => $intent->mode,
             'amount_policy' => $intent->amount_policy,
             'state' => $intent->state,
+            'sandbox' => $intent->sandbox,
             'expires_at' => $intent->expires_at?->toIso8601String(),
             'max_payments' => $intent->max_payments,
             'references' => $intent->paymentReferences->map(fn (PaymentReference $reference) => [

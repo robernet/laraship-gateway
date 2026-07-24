@@ -30,6 +30,7 @@
             <a href="{{ route('gateway.portal.dashboard') }}">Payment intents</a>
             <a href="{{ route('gateway.portal.api-keys.index') }}">API keys</a>
             <a href="{{ route('gateway.portal.webhook.edit') }}">Webhook</a>
+            <a href="{{ route('gateway.portal.docs') }}">API docs</a>
             <form action="{{ route('gateway.portal.logout') }}" method="POST" style="display:inline">
                 @csrf
                 <a href="#" onclick="event.preventDefault(); this.closest('form').submit();">Log out</a>

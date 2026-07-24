@@ -32,4 +32,21 @@
             <button type="submit">Save</button>
         </form>
     </div>
+
+    <div class="card">
+        <h3>Webhook tester</h3>
+        <p>Sends a synthetic <code>payment.confirmed</code> event to your webhook URL through the same signing and delivery path as a real payment.</p>
+        @if (session('testResult'))
+            <p class="{{ session('testResult.status') === 'delivered' ? 'status' : 'error' }}">
+                Result: {{ session('testResult.status') ?? 'no delivery attempted' }}
+                @if (session('testResult.last_error'))
+                    &mdash; {{ session('testResult.last_error') }}
+                @endif
+            </p>
+        @endif
+        <form method="POST" action="{{ route('gateway.portal.webhook.test') }}">
+            @csrf
+            <button type="submit">Send test webhook</button>
+        </form>
+    </div>
 @endsection

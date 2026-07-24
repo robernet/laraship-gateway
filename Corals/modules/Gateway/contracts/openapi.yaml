@@ -417,6 +417,9 @@ components:
         max_payments:
           type: integer
           nullable: true
+        sandbox:
+          type: boolean
+          description: True when created by a sandbox-flagged issuer API token (GW-307); not real money movement.
         references:
           type: array
           items:

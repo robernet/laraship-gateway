@@ -20,7 +20,7 @@ use Illuminate\Support\Facades\DB;
  */
 class CreatePaymentIntent
 {
-    public function handle(Issuer $issuer, array $data): PaymentIntent
+    public function handle(Issuer $issuer, array $data, bool $sandbox = false): PaymentIntent
     {
         $merchant = Merchant::where('mid', $data['mid'])->first();
 
@@ -28,7 +28,7 @@ class CreatePaymentIntent
             throw new AuthorizationException('mid does not belong to the authenticated issuer.');
         }
 
-        return DB::transaction(function () use ($issuer, $merchant, $data) {
+        return DB::transaction(function () use ($issuer, $merchant, $data, $sandbox) {
             $intent = PaymentIntent::create([
                 'issuer_id' => $issuer->id,
                 'merchant_id' => $merchant->id,
@@ -37,6 +37,7 @@ class CreatePaymentIntent
                 'amount_policy' => $data['amount_policy'],
                 'mapping_strategy' => $data['mapping_strategy'] ?? 'deterministic',
                 'state' => 'ACTIVE',
+                'sandbox' => $sandbox,
                 'expires_at' => $data['expires_at'] ?? null,
                 'max_payments' => $data['max_payments'] ?? null,
                 'overpay_policy' => $data['overpay_policy'] ?? 'reject',

@@ -9,6 +9,7 @@ use Corals\Modules\Gateway\database\migrations\IssuerReferenceSecretColumn;
 use Corals\Modules\Gateway\database\migrations\IssuersMerchantsTables;
 use Corals\Modules\Gateway\database\migrations\LedgerEntriesTables;
 use Corals\Modules\Gateway\database\migrations\OutboxEventsTable;
+use Corals\Modules\Gateway\database\migrations\PaymentIntentSandboxColumn;
 use Corals\Modules\Gateway\database\migrations\PaymentIntentsTables;
 use Corals\Modules\Gateway\database\migrations\PosWalletsTables;
 use Corals\Modules\Gateway\database\migrations\ReconciliationExceptionsTables;
@@ -61,6 +62,10 @@ abstract class GatewayTestCase extends TestCase
 
         if (! Schema::hasTable('payment_intents')) {
             (new PaymentIntentsTables())->up();
+        }
+
+        if (! Schema::hasColumn('payment_intents', 'sandbox')) {
+            (new PaymentIntentSandboxColumn())->up();
         }
 
         if (! Schema::hasTable('idempotency_keys')) {
