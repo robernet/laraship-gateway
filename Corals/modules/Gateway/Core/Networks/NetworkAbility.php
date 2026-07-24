@@ -10,6 +10,7 @@ enum NetworkAbility: string
 {
     case ValidateCollection = 'cash:validate';
     case ConfirmCollection = 'cash:confirm';
+    case BatchConfirm = 'cash:batch-confirm';
 
     /**
      * @return array<int, string>

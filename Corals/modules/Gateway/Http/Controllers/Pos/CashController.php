@@ -4,8 +4,10 @@ namespace Corals\Modules\Gateway\Http\Controllers\Pos;
 
 use Corals\Foundation\Http\Controllers\APIBaseController;
 use Corals\Modules\Gateway\Core\Collections\ConfirmCollection;
+use Corals\Modules\Gateway\Core\Collections\IngestSettlementBatch;
 use Corals\Modules\Gateway\Core\Collections\ValidateCollection;
 use Corals\Modules\Gateway\Http\Requests\ConfirmCollectionRequest;
+use Corals\Modules\Gateway\Http\Requests\IngestSettlementBatchRequest;
 use Corals\Modules\Gateway\Http\Requests\ValidateCollectionRequest;
 
 /**
@@ -25,6 +27,13 @@ class CashController extends APIBaseController
     public function confirmCollection(ConfirmCollectionRequest $request)
     {
         $result = (new ConfirmCollection())->handle($request->validated());
+
+        return response()->json($result);
+    }
+
+    public function batchConfirm(IngestSettlementBatchRequest $request)
+    {
+        $result = (new IngestSettlementBatch())->handle($request->validated());
 
         return response()->json($result);
     }

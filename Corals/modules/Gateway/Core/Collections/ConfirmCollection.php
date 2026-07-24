@@ -107,6 +107,7 @@ class ConfirmCollection
                     'amount_centavos' => $amountToPost,
                     'is_partial' => $data['is_partial'],
                     'collected_at' => Carbon::createFromTimestamp($data['collected_at']),
+                    'finality' => $data['finality'] ?? 'on_confirm',
                 ]);
 
                 $isFirstConfirm = $intent->state === 'ACTIVE';

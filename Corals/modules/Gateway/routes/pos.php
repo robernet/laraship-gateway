@@ -11,3 +11,6 @@ Route::post('cash/validate', [CashController::class, 'validateCollection'])
 
 Route::post('cash/confirm', [CashController::class, 'confirmCollection'])
     ->middleware(['auth:sanctum', 'abilities:'.NetworkAbility::ConfirmCollection->value]);
+
+Route::post('cash/batch-confirm', [CashController::class, 'batchConfirm'])
+    ->middleware(['auth:sanctum', 'abilities:'.NetworkAbility::BatchConfirm->value]);
