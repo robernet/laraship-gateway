@@ -15,6 +15,7 @@ use Corals\Modules\Gateway\database\migrations\PaymentIntentSandboxColumn;
 use Corals\Modules\Gateway\database\migrations\PaymentIntentsTables;
 use Corals\Modules\Gateway\database\migrations\PosWalletsTables;
 use Corals\Modules\Gateway\database\migrations\ReconciliationExceptionsTables;
+use Corals\Modules\Gateway\database\migrations\SettlementsTable;
 use Corals\Modules\Gateway\database\migrations\TerminalCredentialColumn;
 use Corals\Modules\Gateway\database\migrations\TransactionsTable;
 use Corals\Modules\Gateway\database\migrations\WalletTopUpsPosWalletNullableColumn;
@@ -107,6 +108,10 @@ abstract class GatewayTestCase extends TestCase
 
         if (! Schema::hasTable('transactions')) {
             (new TransactionsTable)->up();
+        }
+
+        if (! Schema::hasTable('settlements')) {
+            (new SettlementsTable)->up();
         }
 
         DB::beginTransaction();
