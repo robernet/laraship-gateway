@@ -6,7 +6,9 @@ use Corals\Foundation\Facades\Actions;
 use Corals\Foundation\Providers\BasePackageServiceProvider;
 use Corals\Modules\Gateway\Commands\DailyCloseIntegrityCheck;
 use Corals\Modules\Gateway\Commands\IssueIssuerToken;
+use Corals\Modules\Gateway\Commands\IssueNetworkToken;
 use Corals\Modules\Gateway\Commands\RedeliverWebhooks;
+use Corals\Modules\Gateway\Commands\ReleaseExpiredReservations;
 use Corals\Modules\Gateway\Commands\SetIssuerPassword;
 use Corals\Modules\Gateway\Core\Webhooks\WebhookDispatcher;
 use Corals\Settings\Facades\Modules;
@@ -36,6 +38,10 @@ class GatewayServiceProvider extends BasePackageServiceProvider
             ->middleware('api')
             ->group(__DIR__.'/../routes/issuer.php');
 
+        Route::prefix('api/'.config('corals.api_version'))
+            ->middleware('api')
+            ->group(__DIR__.'/../routes/pos.php');
+
         Route::prefix('portal')
             ->middleware('web')
             ->group(__DIR__.'/../routes/portal.php');
@@ -56,6 +62,8 @@ class GatewayServiceProvider extends BasePackageServiceProvider
             RedeliverWebhooks::class,
             IssueIssuerToken::class,
             SetIssuerPassword::class,
+            IssueNetworkToken::class,
+            ReleaseExpiredReservations::class,
         ]);
 
         foreach (['payment.confirmed', 'payment.credited', 'payment.expired', 'payment.voided', 'settlement.completed'] as $event) {
@@ -70,6 +78,10 @@ class GatewayServiceProvider extends BasePackageServiceProvider
             $this->app->make(Schedule::class)
                 ->command(RedeliverWebhooks::class)
                 ->everyFiveMinutes();
+
+            $this->app->make(Schedule::class)
+                ->command(ReleaseExpiredReservations::class)
+                ->everyMinute();
         });
     }
 

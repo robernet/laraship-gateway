@@ -8,11 +8,13 @@ use Corals\Modules\Gateway\database\migrations\IssuerPortalLoginColumns;
 use Corals\Modules\Gateway\database\migrations\IssuerReferenceSecretColumn;
 use Corals\Modules\Gateway\database\migrations\IssuersMerchantsTables;
 use Corals\Modules\Gateway\database\migrations\LedgerEntriesTables;
+use Corals\Modules\Gateway\database\migrations\NetworkCredentialsTable;
 use Corals\Modules\Gateway\database\migrations\OutboxEventsTable;
 use Corals\Modules\Gateway\database\migrations\PaymentIntentSandboxColumn;
 use Corals\Modules\Gateway\database\migrations\PaymentIntentsTables;
 use Corals\Modules\Gateway\database\migrations\PosWalletsTables;
 use Corals\Modules\Gateway\database\migrations\ReconciliationExceptionsTables;
+use Corals\Modules\Gateway\database\migrations\TransactionsTable;
 use Corals\Modules\Gateway\database\migrations\WebhookDeliveriesTable;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
@@ -78,6 +80,14 @@ abstract class GatewayTestCase extends TestCase
 
         if (! Schema::hasTable('webhook_deliveries')) {
             (new WebhookDeliveriesTable())->up();
+        }
+
+        if (! Schema::hasTable('network_credentials')) {
+            (new NetworkCredentialsTable())->up();
+        }
+
+        if (! Schema::hasTable('transactions')) {
+            (new TransactionsTable())->up();
         }
 
         DB::beginTransaction();

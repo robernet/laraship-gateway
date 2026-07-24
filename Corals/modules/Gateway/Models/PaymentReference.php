@@ -23,6 +23,14 @@ class PaymentReference extends Model
         'consumed_at',
     ];
 
+    protected function casts(): array
+    {
+        return [
+            'expires_at' => 'datetime',
+            'consumed_at' => 'datetime',
+        ];
+    }
+
     protected static function newFactory(): PaymentReferenceFactory
     {
         return PaymentReferenceFactory::new();
