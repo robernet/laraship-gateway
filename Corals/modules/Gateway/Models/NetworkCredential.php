@@ -11,10 +11,13 @@ use Illuminate\Database\Eloquent\Model;
 use Laravel\Sanctum\HasApiTokens;
 
 /**
- * Sanctum-authenticatable principal for the POS/network API (GW-401), one
- * per network_id. Stopgap until GW-407 replaces it with real per-terminal
- * mTLS/short-TTL JWT credentials — the validate/confirm core logic doesn't
- * change when that swap happens, only how the caller authenticates.
+ * Sanctum-authenticatable principal for the POS/network API (GW-401,
+ * GW-407). `terminal_id` null = network-wide credential (e.g. the
+ * batch-confirm/SFTP poller); set = a single POS terminal, individually
+ * revocable via `status` without affecting siblings on the same network.
+ * `Http\Middleware\EnsureTerminalCredentialActive` enforces both the
+ * active status and that terminal-scoped credentials match what the
+ * request claims.
  */
 class NetworkCredential extends Model implements AuthenticatableContract
 {
@@ -23,6 +26,7 @@ class NetworkCredential extends Model implements AuthenticatableContract
     protected $fillable = [
         'public_id',
         'network_id',
+        'terminal_id',
         'name',
         'status',
     ];

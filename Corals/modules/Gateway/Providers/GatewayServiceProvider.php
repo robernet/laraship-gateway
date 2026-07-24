@@ -7,8 +7,10 @@ use Corals\Foundation\Providers\BasePackageServiceProvider;
 use Corals\Modules\Gateway\Commands\DailyCloseIntegrityCheck;
 use Corals\Modules\Gateway\Commands\IssueIssuerToken;
 use Corals\Modules\Gateway\Commands\IssueNetworkToken;
+use Corals\Modules\Gateway\Commands\IssueTerminalToken;
 use Corals\Modules\Gateway\Commands\RedeliverWebhooks;
 use Corals\Modules\Gateway\Commands\ReleaseExpiredReservations;
+use Corals\Modules\Gateway\Commands\RevokeTerminalToken;
 use Corals\Modules\Gateway\Commands\SetIssuerPassword;
 use Corals\Modules\Gateway\Core\Webhooks\WebhookDispatcher;
 use Corals\Settings\Facades\Modules;
@@ -63,6 +65,8 @@ class GatewayServiceProvider extends BasePackageServiceProvider
             IssueIssuerToken::class,
             SetIssuerPassword::class,
             IssueNetworkToken::class,
+            IssueTerminalToken::class,
+            RevokeTerminalToken::class,
             ReleaseExpiredReservations::class,
         ]);
 

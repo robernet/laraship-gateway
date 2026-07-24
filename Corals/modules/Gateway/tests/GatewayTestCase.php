@@ -15,6 +15,7 @@ use Corals\Modules\Gateway\database\migrations\PaymentIntentSandboxColumn;
 use Corals\Modules\Gateway\database\migrations\PaymentIntentsTables;
 use Corals\Modules\Gateway\database\migrations\PosWalletsTables;
 use Corals\Modules\Gateway\database\migrations\ReconciliationExceptionsTables;
+use Corals\Modules\Gateway\database\migrations\TerminalCredentialColumn;
 use Corals\Modules\Gateway\database\migrations\TransactionsTable;
 use Corals\Modules\Gateway\database\migrations\WebhookDeliveriesTable;
 use Illuminate\Support\Facades\DB;
@@ -85,6 +86,10 @@ abstract class GatewayTestCase extends TestCase
 
         if (! Schema::hasTable('network_credentials')) {
             (new NetworkCredentialsTable())->up();
+        }
+
+        if (! Schema::hasColumn('network_credentials', 'terminal_id')) {
+            (new TerminalCredentialColumn())->up();
         }
 
         if (! Schema::hasTable('network_adapters')) {
